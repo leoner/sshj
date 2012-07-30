@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.security.PublicKey;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import net.schmizz.sshj.common.IOUtils;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Command;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 
 import com.sampullara.cli.Args;
@@ -60,6 +64,15 @@ public class CommandLineRunner {
 		ssh.addHostKeyVerifier(new NullHostKeyVerifier());
 		ssh.authPassword(info.username, info.password.toCharArray());
 		try {
+			final Session session = ssh.startSession();
+            try {
+                final Command cmd = session.exec("mkdir -p " + info.remotePath);
+                System.out.println(IOUtils.readFully(cmd.getInputStream()).toString());
+                cmd.join(1, TimeUnit.SECONDS);
+                System.out.println("\n** exit status: " + cmd.getExitStatus());
+            } finally {
+                session.close();
+            }
 			// ssh.authPublickey("admin");
 
 			// Present here to demo algorithm renegotiation - could have just
