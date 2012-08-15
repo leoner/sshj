@@ -540,7 +540,13 @@ public class SSHClient
     public void loadKnownHosts()
             throws IOException {
         boolean loaded = false;
-        final File sshDir = OpenSSHKnownHosts.detectSSHDir();
+        File sshDir = OpenSSHKnownHosts.detectSSHDir();
+        // FIX 在windows下面有可能没有.ssh目录.
+        if (sshDir == null) {
+        	String sshDirPath = System.getProperty("user.home") + File.separator + ".ssh";
+        	new File(sshDirPath).mkdirs();
+        	sshDir = new File(sshDirPath);
+        }
         if (sshDir != null) {
             for (File loc : Arrays.asList(new File(sshDir, "known_hosts"), new File(sshDir, "known_hosts2"))) {
                 try {
