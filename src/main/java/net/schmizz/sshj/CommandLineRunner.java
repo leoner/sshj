@@ -34,6 +34,10 @@ public class CommandLineRunner {
 	@Argument(alias = "h", description = "Remote host", required = true)
 	private static String host;
 
+	@Argument(alias = "P", description = "Remote port", required = false)
+	private static Integer port = 22;
+	
+
 	/**
 	 * @param args
 	 * @throws ClassNotFoundException
@@ -66,7 +70,7 @@ public class CommandLineRunner {
 		final File khFile = new File(OpenSSHKnownHosts.detectSSHDir(), "known_hosts");
         ssh.addHostKeyVerifier(new SimpleKnownHostsVerifier(khFile));
 
-		ssh.connect(info.host);
+		ssh.connect(info.host, port);
 		ssh.addHostKeyVerifier(new NullHostKeyVerifier());
 		ssh.authPassword(info.username, info.password.toCharArray());
 		try {
